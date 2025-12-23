@@ -1,0 +1,21 @@
+<div class="home-container">
+  <div class="home-content">
+    <div class="home-header">
+      <h1 class="home-title">{{ title() }}</h1>
+      <p class="home-subtitle">{{ subtitle() }}</p>
+    </div>
+
+    <p class="home-description">{{ description() }}</p>
+
+    <button
+      nz-button
+      nzType="primary"
+      nzSize="large"
+      class="home-cta"
+      (click)="navigateToBoard()"
+    >
+      <span nz-icon nzType="rocket" nzTheme="outline"></span>
+      To Aphelion Board
+    </button>
+  </div>
+</div>
