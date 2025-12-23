@@ -1,4 +1,4 @@
-From the series "Stellar Guide"
+_From the series "Stellar Guide"_
 
 # Aphelion 🌟
 
