@@ -1,17 +1,64 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { BoardHeader } from '../../components/board-header/board-header';
 import { KanbanBoard } from '../../components/kanban-board/kanban-board';
+import { AddProjectModal, NewProjectData } from '../../components/add-project-modal/add-project-modal';
 import { MOCKUP_BOARD_DATA } from '../../data/mockup-board.data';
 import { BoardData } from '../../models/project.model';
 
 @Component({
   selector: 'app-board',
-  imports: [BoardHeader, KanbanBoard],
+  imports: [BoardHeader, KanbanBoard, AddProjectModal],
   templateUrl: './board.html',
   styleUrl: './board.scss'
 })
 export class Board {
   protected boardData = signal<BoardData>(MOCKUP_BOARD_DATA);
+  private addProjectModal = viewChild.required(AddProjectModal);
+
+  openAddProjectModal() {
+    this.addProjectModal().open();
+  }
+
+  onProjectAdded(newProjectData: NewProjectData) {
+    this.boardData.update((data) => {
+      const targetColumn = data.columns.find((col) => col.status === newProjectData.status);
+      if (!targetColumn) return data;
+
+      const columnTitle = targetColumn.title;
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      const newProject = {
+        id: crypto.randomUUID(),
+        title: newProjectData.title,
+        description: newProjectData.description,
+        status: newProjectData.status,
+        date: currentDate,
+        dateLabel: columnTitle
+      };
+
+      targetColumn.projects.unshift(newProject);
+      return { ...data };
+    });
+  }
+
+  onProjectReordered(event: { columnId: string; projectId: string; newIndex: number }) {
+    this.boardData.update((data) => {
+      const column = data.columns.find((col) => col.id === event.columnId);
+      if (!column) return data;
+
+      const currentIndex = column.projects.findIndex((p) => p.id === event.projectId);
+      if (currentIndex === -1) return data;
+
+      const [project] = column.projects.splice(currentIndex, 1);
+      column.projects.splice(event.newIndex, 0, project);
+
+      return { ...data };
+    });
+  }
 
   onProjectMoved(event: { projectId: string; fromColumnId: string; toColumnId: string }) {
     this.boardData.update((data) => {
@@ -25,6 +72,15 @@ export class Board {
 
       const [project] = fromColumn.projects.splice(projectIndex, 1);
       project.status = toColumn.status;
+
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      project.date = currentDate;
+      project.dateLabel = toColumn.title;
+
       toColumn.projects.push(project);
 
       return { ...data };

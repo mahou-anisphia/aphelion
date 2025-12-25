@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
+import { CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { BoardData } from '../../models/project.model';
 import { KanbanColumnComponent } from '../kanban-column/kanban-column';
 
@@ -12,4 +12,5 @@ import { KanbanColumnComponent } from '../kanban-column/kanban-column';
 export class KanbanBoard {
   boardData = input.required<BoardData>();
   projectMoved = output<{ projectId: string; fromColumnId: string; toColumnId: string }>();
+  projectReordered = output<{ columnId: string; projectId: string; newIndex: number }>();
 }

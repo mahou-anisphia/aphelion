@@ -1,0 +1,168 @@
+// Override ng-zorro modal styles to match the design system
+::ng-deep {
+  .ant-modal {
+    width: 700px !important;
+    max-width: 90vw;
+  }
+
+  .ant-modal-content {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+  }
+
+  .ant-modal-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 32px 40px;
+  }
+
+  .ant-modal-title {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .ant-modal-close {
+    color: rgba(255, 255, 255, 0.4);
+    top: 32px;
+    right: 32px;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.9);
+      background: transparent;
+    }
+  }
+
+  .ant-modal-body {
+    padding: 40px;
+    background: transparent;
+  }
+
+  .ant-modal-footer {
+    background: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 24px 40px;
+
+    .ant-btn {
+      height: 44px;
+      padding: 0 32px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      border-radius: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ant-btn-default {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.7);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.8) !important;
+        color: rgba(255, 255, 255, 0.95) !important;
+      }
+
+      &:focus {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.8) !important;
+        color: rgba(255, 255, 255, 0.95) !important;
+      }
+    }
+
+    .ant-btn-primary {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.95);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.8);
+      }
+    }
+  }
+
+  // Form styles
+  .ant-form-item {
+    margin-bottom: 24px;
+  }
+
+  .ant-form-item-label > label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    height: auto;
+
+    &.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before {
+      color: rgba(255, 87, 87, 0.7);
+    }
+  }
+
+  .ant-input,
+  .ant-input-textarea textarea,
+  .ant-select-selector {
+    background: rgba(20, 20, 20, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      background: rgba(25, 25, 25, 0.8) !important;
+    }
+
+    &:focus,
+    &.ant-input-focused,
+    &.ant-select-focused .ant-select-selector {
+      border-color: rgba(120, 119, 198, 0.5) !important;
+      background: rgba(25, 25, 25, 0.8) !important;
+      box-shadow: 0 0 0 2px rgba(120, 119, 198, 0.1);
+    }
+  }
+
+  .ant-input-textarea textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .ant-select-arrow {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .ant-select-dropdown {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+  }
+
+  .ant-select-item {
+    color: rgba(255, 255, 255, 0.7);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.ant-select-item-option-selected {
+      background: rgba(120, 119, 198, 0.2);
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .ant-form-item-explain-error {
+    color: rgba(255, 87, 87, 0.8);
+    font-size: 12px;
+  }
+}

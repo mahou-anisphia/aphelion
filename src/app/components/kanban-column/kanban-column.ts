@@ -12,13 +12,22 @@ import { ProjectCard } from '../project-card/project-card';
 export class KanbanColumnComponent {
   column = input.required<KanbanColumn>();
   projectMoved = output<{ projectId: string; fromColumnId: string; toColumnId: string }>();
+  projectReordered = output<{ columnId: string; projectId: string; newIndex: number }>();
 
   onDrop(event: CdkDragDrop<KanbanColumn>) {
     const projectId = event.item.data;
     const fromColumnId = event.previousContainer.data.id;
     const toColumnId = event.container.data.id;
 
-    if (fromColumnId !== toColumnId) {
+    if (fromColumnId === toColumnId) {
+      // Reordering within the same column
+      this.projectReordered.emit({
+        columnId: toColumnId,
+        projectId,
+        newIndex: event.currentIndex
+      });
+    } else {
+      // Moving to a different column
       this.projectMoved.emit({ projectId, fromColumnId, toColumnId });
     }
   }

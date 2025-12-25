@@ -1,4 +1,9 @@
 <div class="board-container">
-  <app-board-header />
-  <app-kanban-board [boardData]="boardData()" (projectMoved)="onProjectMoved($event)" />
+  <app-board-header (addProjectClick)="openAddProjectModal()" />
+  <app-kanban-board
+    [boardData]="boardData()"
+    (projectMoved)="onProjectMoved($event)"
+    (projectReordered)="onProjectReordered($event)"
+  />
+  <app-add-project-modal [columns]="boardData().columns" (projectAdded)="onProjectAdded($event)" />
 </div>

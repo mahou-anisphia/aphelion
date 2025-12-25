@@ -1,0 +1,47 @@
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="Add New Project"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  nzOkText="Add Project"
+  nzCancelText="Cancel"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="projectForm" nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label nzRequired>Project Title</nz-form-label>
+        <nz-form-control nzErrorTip="Please enter a project title">
+          <input
+            nz-input
+            formControlName="title"
+            placeholder="Enter project title"
+            type="text"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Description</nz-form-label>
+        <nz-form-control nzErrorTip="Please enter a description">
+          <textarea
+            nz-input
+            formControlName="description"
+            placeholder="Enter project description"
+            [rows]="4"
+          ></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Initial Status</nz-form-label>
+        <nz-form-control>
+          <nz-select formControlName="status" nzPlaceHolder="Select status">
+            @for (column of columns(); track column.id) {
+              <nz-option [nzValue]="column.status" [nzLabel]="column.title"></nz-option>
+            }
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>
