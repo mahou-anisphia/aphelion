@@ -1,1 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
+
+// Angular CDK Drag and Drop - Global optimizations for smooth dragging
+.cdk-drag-preview {
+  // Use GPU acceleration for smooth movement
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+
+  // Prevent any animations from interfering
+  animation: none !important;
+}
+
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+// Optimize rendering during drag
+.cdk-drag-animating {
+  transform: translateZ(0);
+}

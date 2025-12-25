@@ -1,0 +1,106 @@
+// Board header component styles
+.board-header {
+  position: relative;
+  z-index: 2;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+.board-header-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 32px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+  }
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 0;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  span[nz-icon] {
+    font-size: 12px;
+  }
+}
+
+.board-title-section {
+  flex: 1;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    text-align: left;
+  }
+}
+
+.board-title {
+  font-size: 32px;
+  font-weight: 200;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+
+  @media (max-width: 768px) {
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
+}
+
+.board-subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  margin: 0;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.add-project-btn {
+  height: 40px;
+  padding: 0 24px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: #ffffff;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+  }
+
+  span[nz-icon] {
+    font-size: 12px;
+    margin-right: 8px;
+  }
+}

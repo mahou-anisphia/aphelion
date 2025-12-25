@@ -1,0 +1,12 @@
+<div class="project-card" [attr.data-status]="project().status" cdkDrag [cdkDragData]="project().id">
+  <div class="project-card-header">
+    <h3 class="project-title">{{ project().title }}</h3>
+    <button nz-button nzType="text" class="project-menu-btn">
+      <span nz-icon nzType="more" nzTheme="outline"></span>
+    </button>
+  </div>
+  <p class="project-description">{{ project().description }}</p>
+  <div class="project-footer">
+    <span class="project-date">{{ project().dateLabel }}: {{ project().date }}</span>
+  </div>
+</div>

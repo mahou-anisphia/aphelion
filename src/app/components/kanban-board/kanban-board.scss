@@ -1,0 +1,38 @@
+// Kanban board component styles
+.board-content {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  padding: 40px;
+  overflow-x: auto;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+
+  // Scrollbar styling
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+.kanban-columns {
+  display: flex;
+  gap: 24px;
+  min-width: fit-content;
+  max-width: 1600px;
+  margin: 0 auto;
+}

@@ -1,0 +1,150 @@
+// Project card component styles
+.project-card {
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  cursor: grab;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.4s ease-out;
+  will-change: transform;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    transition: all 0.3s ease;
+  }
+
+  // Status variants - color-coded left borders
+  &[data-status='active']::before {
+    background: rgba(120, 119, 198, 0.5);
+  }
+
+  &[data-status='paused']::before {
+    background: rgba(255, 193, 7, 0.5);
+  }
+
+  &[data-status='abandoned']::before {
+    background: rgba(255, 87, 87, 0.5);
+  }
+
+  &[data-status='archived'] {
+    opacity: 0.6;
+
+    &::before {
+      background: rgba(158, 158, 158, 0.5);
+    }
+  }
+
+  &:hover:not(.cdk-drag-preview) {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(25, 25, 25, 0.8);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+
+    &::before {
+      width: 3px;
+    }
+  }
+
+  // CDK drag states
+  &.cdk-drag-dragging {
+    cursor: grabbing;
+    opacity: 0;
+  }
+
+  &.cdk-drag-preview {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.2);
+    opacity: 0.95;
+    cursor: grabbing;
+    transform: rotate(2deg);
+    border-color: rgba(120, 119, 198, 0.4);
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 300ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0;
+    background: rgba(120, 119, 198, 0.1);
+    border: 2px dashed rgba(120, 119, 198, 0.3);
+  }
+}
+
+.project-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.project-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+
+.project-menu-btn {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.3);
+  border: none;
+  background: transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  span[nz-icon] {
+    font-size: 16px;
+  }
+}
+
+.project-description {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 16px 0;
+  font-weight: 300;
+}
+
+.project-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.project-date {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

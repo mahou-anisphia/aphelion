@@ -1,0 +1,7 @@
+<div class="board-content" cdkDropListGroup>
+  <div class="kanban-columns">
+    @for (column of boardData().columns; track column.id) {
+      <app-kanban-column [column]="column" (projectMoved)="projectMoved.emit($event)" />
+    }
+  </div>
+</div>
