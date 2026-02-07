@@ -7,6 +7,7 @@ export interface Project {
   status: ProjectStatus;
   date: string;
   dateLabel: string; // e.g., "Started", "Paused", "Abandoned", "Archived"
+  position: number;
 }
 
 export interface KanbanColumn {

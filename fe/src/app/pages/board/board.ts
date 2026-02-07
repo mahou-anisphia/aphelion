@@ -37,8 +37,14 @@ export class Board {
         description: newProjectData.description,
         status: newProjectData.status,
         date: currentDate,
-        dateLabel: columnTitle
+        dateLabel: columnTitle,
+        position: 0
       };
+
+      // Update positions of existing projects
+      targetColumn.projects.forEach((project) => {
+        project.position += 1;
+      });
 
       targetColumn.projects.unshift(newProject);
       return { ...data };
@@ -55,6 +61,11 @@ export class Board {
 
       const [project] = column.projects.splice(currentIndex, 1);
       column.projects.splice(event.newIndex, 0, project);
+
+      // Update positions for all projects in the column
+      column.projects.forEach((proj, index) => {
+        proj.position = index;
+      });
 
       return { ...data };
     });
@@ -80,8 +91,14 @@ export class Board {
       });
       project.date = currentDate;
       project.dateLabel = toColumn.title;
+      project.position = toColumn.projects.length;
 
       toColumn.projects.push(project);
+
+      // Update positions in the source column after removal
+      fromColumn.projects.forEach((proj, index) => {
+        proj.position = index;
+      });
 
       return { ...data };
     });
