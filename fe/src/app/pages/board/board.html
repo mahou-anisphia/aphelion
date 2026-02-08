@@ -1,9 +1,25 @@
 <div class="board-container">
   <app-board-header (addProjectClick)="openAddProjectModal()" />
-  <app-kanban-board
-    [boardData]="boardData()"
-    (projectMoved)="onProjectMoved($event)"
-    (projectReordered)="onProjectReordered($event)"
-  />
+
+  @if (isEmpty()) {
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <span nz-icon nzType="appstore" nzTheme="outline" class="empty-state-icon"></span>
+        <h2 class="empty-state-title">Nothing here yet</h2>
+        <p class="empty-state-description">To begin, add your first project and start tracking your work.</p>
+        <button nz-button nzType="default" class="empty-state-btn" (click)="openAddProjectModal()">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+          Add First Project
+        </button>
+      </div>
+    </div>
+  } @else {
+    <app-kanban-board
+      [boardData]="boardData()"
+      (projectMoved)="onProjectMoved($event)"
+      (projectReordered)="onProjectReordered($event)"
+    />
+  }
+
   <app-add-project-modal [columns]="boardData().columns" (projectAdded)="onProjectAdded($event)" />
 </div>

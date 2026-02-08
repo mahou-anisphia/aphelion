@@ -105,17 +105,17 @@ export const MOCKUP_BOARD_DATA: BoardData = {
       ]
     },
     {
-      id: 'archived',
-      title: 'Archived',
-      status: 'archived',
+      id: 'done',
+      title: 'Done',
+      status: 'done',
       projects: [
         {
           id: 'd0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a',
           title: 'Supernova Deploy',
           description: 'Zero-config deployment tool for static sites.',
-          status: 'archived',
+          status: 'done',
           date: 'Jul 1, 2024',
-          dateLabel: 'Archived',
+          dateLabel: 'Done',
           position: 0
         }
       ]

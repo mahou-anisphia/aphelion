@@ -1,4 +1,4 @@
-export type ProjectStatus = 'active' | 'paused' | 'abandoned' | 'archived';
+export type ProjectStatus = 'active' | 'paused' | 'abandoned' | 'done';
 
 export interface Project {
   id: string;
@@ -6,7 +6,7 @@ export interface Project {
   description: string;
   status: ProjectStatus;
   date: string;
-  dateLabel: string; // e.g., "Started", "Paused", "Abandoned", "Archived"
+  dateLabel: string; // e.g., "Started", "Paused", "Abandoned", "Done"
   position: number;
 }
 

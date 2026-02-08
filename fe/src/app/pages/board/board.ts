@@ -1,19 +1,56 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, computed, viewChild, effect } from '@angular/core';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { BoardHeader } from '../../components/board-header/board-header';
 import { KanbanBoard } from '../../components/kanban-board/kanban-board';
 import { AddProjectModal, NewProjectData } from '../../components/add-project-modal/add-project-modal';
-import { MOCKUP_BOARD_DATA } from '../../data/mockup-board.data';
 import { BoardData } from '../../models/project.model';
+
+const STORAGE_KEY = 'stellar-guide-board-data';
 
 @Component({
   selector: 'app-board',
-  imports: [BoardHeader, KanbanBoard, AddProjectModal],
+  imports: [BoardHeader, KanbanBoard, AddProjectModal, NzButtonModule, NzIconModule],
   templateUrl: './board.html',
   styleUrl: './board.scss'
 })
 export class Board {
-  protected boardData = signal<BoardData>(MOCKUP_BOARD_DATA);
+  protected boardData = signal<BoardData>(this.loadBoardData());
+  protected isEmpty = computed(() => this.boardData().columns.every((col) => col.projects.length === 0));
   private addProjectModal = viewChild.required(AddProjectModal);
+
+  constructor() {
+    // Auto-save to local storage whenever board data changes
+    effect(() => {
+      const data = this.boardData();
+      this.saveBoardData(data);
+    });
+  }
+
+  private loadBoardData(): BoardData {
+    const storedData = localStorage.getItem(STORAGE_KEY);
+
+    if (storedData) {
+      return JSON.parse(storedData);
+    }
+
+    return this.getInitialBoardData();
+  }
+
+  private saveBoardData(data: BoardData): void {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  private getInitialBoardData(): BoardData {
+    return {
+      columns: [
+        { id: 'active', title: 'Active', status: 'active', projects: [] },
+        { id: 'paused', title: 'Paused', status: 'paused', projects: [] },
+        { id: 'abandoned', title: 'Abandoned', status: 'abandoned', projects: [] },
+        { id: 'done', title: 'Done', status: 'done', projects: [] }
+      ]
+    };
+  }
 
   openAddProjectModal() {
     this.addProjectModal().open();
