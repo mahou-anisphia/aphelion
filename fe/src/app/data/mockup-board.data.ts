@@ -14,7 +14,7 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'active',
           date: 'Dec 15, 2024',
           dateLabel: 'Started',
-          position: 0
+          position: 0,
         },
         {
           id: 'b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e',
@@ -23,7 +23,7 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'active',
           date: 'Dec 10, 2024',
           dateLabel: 'Started',
-          position: 1
+          position: 1,
         },
         {
           id: 'c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f',
@@ -32,9 +32,9 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'active',
           date: 'Dec 5, 2024',
           dateLabel: 'Started',
-          position: 2
-        }
-      ]
+          position: 2,
+        },
+      ],
     },
     {
       id: 'paused',
@@ -48,7 +48,7 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'paused',
           date: 'Nov 20, 2024',
           dateLabel: 'Paused',
-          position: 0
+          position: 0,
         },
         {
           id: 'e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b',
@@ -57,9 +57,9 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'paused',
           date: 'Nov 12, 2024',
           dateLabel: 'Paused',
-          position: 1
-        }
-      ]
+          position: 1,
+        },
+      ],
     },
     {
       id: 'abandoned',
@@ -73,7 +73,7 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'abandoned',
           date: 'Oct 5, 2024',
           dateLabel: 'Abandoned',
-          position: 0
+          position: 0,
         },
         {
           id: 'a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d',
@@ -82,7 +82,7 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'abandoned',
           date: 'Sep 22, 2024',
           dateLabel: 'Abandoned',
-          position: 1
+          position: 1,
         },
         {
           id: 'b8c9d0e1-f2a3-4b4c-5d6e-7f8a9b0c1d2e',
@@ -91,7 +91,7 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'abandoned',
           date: 'Aug 30, 2024',
           dateLabel: 'Abandoned',
-          position: 2
+          position: 2,
         },
         {
           id: 'c9d0e1f2-a3b4-4c5d-6e7f-8a9b0c1d2e3f',
@@ -100,9 +100,9 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'abandoned',
           date: 'Aug 15, 2024',
           dateLabel: 'Abandoned',
-          position: 3
-        }
-      ]
+          position: 3,
+        },
+      ],
     },
     {
       id: 'done',
@@ -116,9 +116,9 @@ export const MOCKUP_BOARD_DATA: BoardData = {
           status: 'done',
           date: 'Jul 1, 2024',
           dateLabel: 'Done',
-          position: 0
-        }
-      ]
-    }
-  ]
+          position: 0,
+        },
+      ],
+    },
+  ],
 };

@@ -5,20 +5,25 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { BoardHeader } from '../../components/board-header/board-header';
 import { KanbanBoard } from '../../components/kanban-board/kanban-board';
-import { AddProjectModal, NewProjectData } from '../../components/add-project-modal/add-project-modal';
+import {
+  AddProjectModal,
+  NewProjectData,
+} from '../../components/add-project-modal/add-project-modal';
 import { BoardData } from '../../models/project.model';
 
-const STORAGE_KEY = 'stellar-guide-board-data';
+const STORAGE_KEY = 'stellar-guide-project-board-data';
 
 @Component({
   selector: 'app-board',
   imports: [BoardHeader, KanbanBoard, AddProjectModal, NzButtonModule, NzIconModule],
   templateUrl: './board.html',
-  styleUrl: './board.scss'
+  styleUrl: './board.scss',
 })
 export class Board {
   protected boardData = signal<BoardData>(this.loadBoardData());
-  protected isEmpty = computed(() => this.boardData().columns.every((col) => col.projects.length === 0));
+  protected isEmpty = computed(() =>
+    this.boardData().columns.every((col) => col.projects.length === 0),
+  );
   protected isDev = isDevMode();
   private addProjectModal = viewChild.required(AddProjectModal);
   private message = inject(NzMessageService);
@@ -52,8 +57,8 @@ export class Board {
         { id: 'active', title: 'Active', status: 'active', projects: [] },
         { id: 'paused', title: 'Paused', status: 'paused', projects: [] },
         { id: 'abandoned', title: 'Abandoned', status: 'abandoned', projects: [] },
-        { id: 'done', title: 'Done', status: 'done', projects: [] }
-      ]
+        { id: 'done', title: 'Done', status: 'done', projects: [] },
+      ],
     };
   }
 
@@ -69,7 +74,7 @@ export class Board {
         localStorage.removeItem(STORAGE_KEY);
         this.boardData.set(this.getInitialBoardData());
         this.message.success('Local storage cleared');
-      }
+      },
     });
   }
 
@@ -86,7 +91,7 @@ export class Board {
       const currentDate = new Date().toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
-        year: 'numeric'
+        year: 'numeric',
       });
 
       const newProject = {
@@ -96,7 +101,7 @@ export class Board {
         status: newProjectData.status,
         date: currentDate,
         dateLabel: columnTitle,
-        position: 0
+        position: 0,
       };
 
       // Update positions of existing projects
@@ -147,7 +152,7 @@ export class Board {
       const currentDate = new Date().toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
-        year: 'numeric'
+        year: 'numeric',
       });
       project.date = currentDate;
       project.dateLabel = toColumn.title;
