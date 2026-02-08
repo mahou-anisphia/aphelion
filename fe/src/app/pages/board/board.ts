@@ -1,6 +1,8 @@
-import { Component, signal, computed, viewChild, effect } from '@angular/core';
+import { Component, inject, signal, computed, viewChild, effect, isDevMode } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { BoardHeader } from '../../components/board-header/board-header';
 import { KanbanBoard } from '../../components/kanban-board/kanban-board';
 import { AddProjectModal, NewProjectData } from '../../components/add-project-modal/add-project-modal';
@@ -17,7 +19,10 @@ const STORAGE_KEY = 'stellar-guide-board-data';
 export class Board {
   protected boardData = signal<BoardData>(this.loadBoardData());
   protected isEmpty = computed(() => this.boardData().columns.every((col) => col.projects.length === 0));
+  protected isDev = isDevMode();
   private addProjectModal = viewChild.required(AddProjectModal);
+  private message = inject(NzMessageService);
+  private modal = inject(NzModalService);
 
   constructor() {
     // Auto-save to local storage whenever board data changes
@@ -50,6 +55,22 @@ export class Board {
         { id: 'done', title: 'Done', status: 'done', projects: [] }
       ]
     };
+  }
+
+  nukeLocalStorage() {
+    this.modal.confirm({
+      nzTitle: 'Clear all board data?',
+      nzContent: 'This will remove all projects and reset the board.',
+      nzOkText: 'Clear',
+      nzOkDanger: true,
+      nzCancelText: 'Cancel',
+      nzClassName: 'dark-confirm-modal',
+      nzOnOk: () => {
+        localStorage.removeItem(STORAGE_KEY);
+        this.boardData.set(this.getInitialBoardData());
+        this.message.success('Local storage cleared');
+      }
+    });
   }
 
   openAddProjectModal() {
@@ -86,6 +107,8 @@ export class Board {
       targetColumn.projects.unshift(newProject);
       return { ...data };
     });
+
+    this.message.success(`Project "${newProjectData.title}" created`);
   }
 
   onProjectReordered(event: { columnId: string; projectId: string; newIndex: number }) {

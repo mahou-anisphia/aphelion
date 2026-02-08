@@ -22,4 +22,10 @@
   }
 
   <app-add-project-modal [columns]="boardData().columns" (projectAdded)="onProjectAdded($event)" />
+
+  @if (isDev) {
+    <button class="dev-nuke-btn" (click)="nukeLocalStorage()" title="Clear local storage">
+      <span nz-icon nzType="delete" nzTheme="outline"></span>
+    </button>
+  }
 </div>
