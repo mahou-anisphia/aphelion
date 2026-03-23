@@ -1,10 +1,11 @@
 <nz-modal
-  [(nzVisible)]="isVisible"
+  [nzVisible]="isVisible"
   nzTitle="Add New Project"
   (nzOnCancel)="handleCancel()"
   (nzOnOk)="handleOk()"
   nzOkText="Add Project"
   nzCancelText="Cancel"
+  [nzMaskClosable]="false"
 >
   <ng-container *nzModalContent>
     <form nz-form [formGroup]="projectForm" nzLayout="vertical">

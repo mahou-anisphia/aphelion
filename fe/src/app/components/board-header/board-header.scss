@@ -81,19 +81,21 @@
   text-transform: uppercase;
 }
 
-.add-project-btn {
+::ng-deep .add-project-btn.ant-btn {
   height: 40px;
   padding: 0 24px;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 1.2px;
   text-transform: uppercase;
+  border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: transparent;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.9);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  &:hover {
+  &:hover,
+  &:focus {
     border-color: rgba(255, 255, 255, 0.8);
     background: rgba(255, 255, 255, 0.05);
     color: #ffffff;

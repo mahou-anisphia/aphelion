@@ -1,6 +1,6 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -27,6 +27,8 @@ export interface NewProjectData {
   styleUrl: './add-project-modal.scss'
 })
 export class AddProjectModal {
+  private modal = inject(NzModalService);
+
   columns = input.required<KanbanColumn[]>();
   isVisible = false;
   projectAdded = output<NewProjectData>();
@@ -45,8 +47,23 @@ export class AddProjectModal {
   }
 
   handleCancel() {
-    this.isVisible = false;
-    this.projectForm.reset({ status: 'active' });
+    if (this.projectForm.dirty) {
+      this.modal.confirm({
+        nzTitle: 'Are you sure you want to cancel?',
+        nzContent: "You'll lose what you filled in here.",
+        nzOkText: 'Yes, discard',
+        nzOkDanger: true,
+        nzCancelText: 'Keep editing',
+        nzClassName: 'dark-confirm-modal',
+        nzOnOk: () => {
+          this.isVisible = false;
+          this.projectForm.reset({ status: 'active' });
+        }
+      });
+    } else {
+      this.isVisible = false;
+      this.projectForm.reset({ status: 'active' });
+    }
   }
 
   handleOk() {
