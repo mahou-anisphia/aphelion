@@ -3,8 +3,10 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { apiReference } from '@scalar/express-api-reference';
 import { db } from './db/index.js';
 import { projects } from './db/schema.js';
+import { openApiSpec } from './openapi.js';
 import { eq, asc, and, ne, sql, count } from 'drizzle-orm';
 import { z } from 'zod';
 
@@ -24,6 +26,19 @@ app.use((req: Request, res: Response, next) => {
   }
   next();
 });
+
+// ─── API docs ──────────────────────────────────────────────────────────────────
+app.get('/api/openapi.json', (_req: Request, res: Response) => {
+  res.json(openApiSpec);
+});
+
+app.use(
+  '/api/docs',
+  apiReference({
+    spec: { content: openApiSpec },
+    theme: 'deepSpace',
+  }),
+);
 
 // ─── Column metadata (fixed, no DB table) ──────────────────────────────────────
 

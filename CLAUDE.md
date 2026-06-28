@@ -10,7 +10,7 @@ Aphelion is a Kanban-style board for tracking abandoned, paused, and sidelined p
 
 ### Frontend (`fe/`)
 ```bash
-npm start       # Dev server (ng serve)
+npm start       # Dev server (ng serve) — proxies /api to localhost:3000
 npm run build   # Production build
 npm test        # Karma + Jasmine tests
 npm run watch   # Build in watch mode
@@ -18,7 +18,16 @@ npm run watch   # Build in watch mode
 
 ### Backend (`be/`)
 ```bash
-npm run dev     # Dev server with auto-reload (tsx watch)
+npm run dev          # Dev server with auto-reload (tsx watch)
+pnpm db:generate     # Generate Drizzle migration files from schema
+pnpm db:migrate      # Apply pending migrations against DATABASE_URL
+```
+
+### Deployment (`scripts/`)
+```bash
+./scripts/start.sh                        # Build + migrate + run on port 3000
+./scripts/start.sh --be-port 4000 --fe-port 80   # Custom ports
+./scripts/teardown.sh                     # Stop and remove the Docker container
 ```
 
 Run a single test: use `--include` with Karma or focus tests with `fdescribe`/`fit` in spec files.
@@ -27,7 +36,7 @@ Run a single test: use `--include` with Karma or focus tests with `fdescribe`/`f
 
 ### Frontend (Angular 20, standalone components)
 
-**State management:** Angular Signals. The board component owns all state. Board data auto-saves to `localStorage` via an effect whenever signals change. Key: `'stellar-guide-project-board-data'`.
+**State management:** Angular Signals. `BoardService` owns HTTP calls; `Board` component owns the `boardData` signal. On init the board fetches `GET /api/board`; mutations call the API and update the signal (optimistic for drag-drop, server-first for create/edit/delete).
 
 **Component tree:**
 ```
@@ -36,11 +45,11 @@ Board
 ├── BoardHeader
 ├── KanbanBoard (CDK drag-drop container)
 │   └── KanbanColumn × 4  (active | paused | abandoned | done)
-│       └── ProjectCard[]
-└── AddProjectModal
+│       └── ProjectCard[]  (⋯ button opens edit modal)
+└── AddProjectModal         (handles both add and edit modes)
 ```
 
-**Data flow:** KanbanColumn emits drag-drop events → KanbanBoard → Board updates signal state → auto-save effect fires.
+**Data flow:** KanbanColumn emits drag-drop / edit events → KanbanBoard → Board calls BoardService → signal updated.
 
 **Data model** (`fe/src/app/models/project.model.ts`):
 - `ProjectStatus`: `'active' | 'paused' | 'abandoned' | 'done'`
@@ -48,11 +57,53 @@ Board
 - `BoardData`: `{ columns: KanbanColumn[] }` — always exactly 4 columns
 
 **Key files:**
-- `fe/src/app/pages/board/board.ts` — all board state, persistence, and event handlers
+- `fe/src/app/services/board.service.ts` — all HTTP calls (`loadBoard`, `createProject`, `patchProject`, `deleteProject`, `clearBoard`)
+- `fe/src/app/pages/board/board.ts` — board state signal, event handlers, wires service calls
 - `fe/src/app/components/kanban-column/kanban-column.ts` — drag-drop logic (reorder vs. cross-column move)
-- `fe/src/app/components/add-project-modal/add-project-modal.ts` — Reactive Form for project creation
+- `fe/src/app/components/add-project-modal/add-project-modal.ts` — Reactive Form; supports `open()` (add) and `openEdit(project)` (edit + delete)
 
 **UI library:** ng-zorro-antd (Ant Design). Theme overrides in `fe/src/theme.less`. Component styles in SCSS.
+
+### Backend (Express 5, TypeScript, Drizzle ORM)
+
+**Database:** PostgreSQL, connected via `DATABASE_URL` env var. Single `projects` table managed by Drizzle ORM.
+
+**Schema** (`be/src/db/schema.ts`): `id` (uuid PK), `title`, `description`, `status` (pgEnum), `date`, `date_label`, `position` (int), `created_at`, `updated_at`.
+
+**API endpoints:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/board` | Full board — all projects grouped into 4 columns, ordered by position |
+| `POST` | `/api/projects` | Create project (server sets `id`, `date`, `dateLabel`, `position: 0`) |
+| `PATCH` | `/api/projects/:id` | Edit fields, move column (`status`), or reorder (`position`) — all in one transaction |
+| `DELETE` | `/api/projects/:id` | Delete and re-normalise column positions |
+| `DELETE` | `/api/board` | Wipe all projects (dev/admin) |
+| `GET` | `/api/docs` | Scalar interactive API documentation |
+| `GET` | `/api/openapi.json` | Raw OpenAPI 3.1 spec |
+
+**Key files:**
+- `be/src/app.ts` — Express server, all routes, static file serving for production
+- `be/src/db/schema.ts` — Drizzle table definition and `ProjectStatus` enum
+- `be/src/db/index.ts` — pool + db exports
+- `be/src/openapi.ts` — OpenAPI 3.1 spec object (single source of truth for `/api/docs`)
+- `be/src/migrate.ts` — standalone migration runner (used by Docker entrypoint)
+- `be/drizzle/` — generated SQL migration files (commit these)
+
+In production (Docker), Express also serves the Angular static bundle from `./public` and falls back to `index.html` for any non-`/api` path.
+
+### Deployment
+
+```
+scripts/
+├── Dockerfile    — 3-stage build: fe-builder → be-deps → final image
+├── start.sh      — checks env + ports, builds image, runs migrations, starts container
+└── teardown.sh   — stops and removes the container
+```
+
+`start.sh` checks in order: env file exists → `DATABASE_URL` set → `be/drizzle/` non-empty → host port free → stale container removed → build → migrate → run.
+
+Config: copy `be/.env.example` → `be/.env`, set `DATABASE_URL`.
 
 ## UI Design System
 
@@ -106,16 +157,13 @@ For non-modal component overrides (e.g., standalone buttons NOT inside a modal),
 - Labels / nav: `font-weight: 500`, `text-transform: uppercase`, `letter-spacing: 1–1.5px`, `font-size: 12–13px`
 - Body: `font-weight: 300–400`, normal case, `line-height: 1.6–1.8`
 
-### Backend (`be/`)
-
-Minimal Express 5 placeholder. Single `GET /` route. Port configurable via `PORT` env var (default 3000). No API endpoints implemented yet — ready for expansion.
-
 ## Conventions
 
 - All Angular components are **standalone** (no NgModules).
 - State via **Angular Signals**; use `input()` / `output()` for component communication.
 - **Reactive Forms** for all form validation.
-- **Strict TypeScript** enabled everywhere.
+- **Strict TypeScript** enabled everywhere (backend: `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`).
 - Prettier config: 100-char print width, single quotes, Angular HTML parser.
 - Projects use UUIDs for `id` and a numeric `position` field for ordering within columns.
-- Dev-only "nuke" button clears localStorage (guarded from production use).
+- Dev-only "Clear Board" button calls `DELETE /api/board` (guarded by `isDevMode()`).
+- The OpenAPI spec in `be/src/openapi.ts` is the single source of truth — update it whenever API routes change.
