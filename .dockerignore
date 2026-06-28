@@ -1,0 +1,17 @@
+.git
+.gitignore
+
+# Frontend — only the source is needed; dist is built inside Docker
+fe/dist
+fe/.angular
+fe/node_modules
+
+# Backend — deps are installed inside Docker
+be/node_modules
+be/dist
+be/.env
+
+# Misc
+**/coverage
+**/*.log
+**/npm-debug.log*

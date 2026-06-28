@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import type { Request, Response } from 'express';
+import { existsSync } from 'fs';
+import { join } from 'path';
 import { db } from './db/index.js';
 import { projects } from './db/schema.js';
 import { eq, asc, and, ne, sql, count } from 'drizzle-orm';
@@ -248,6 +250,20 @@ app.delete('/api/board', async (_req: Request, res: Response) => {
   }
 });
 
+// ─── Static file serving (production only) ─────────────────────────────────────
+// When the Angular dist is copied into ./public (Docker image), Express serves it.
+// In development the Angular dev server handles the FE; ./public won't exist.
+const publicDir = join(process.cwd(), 'public');
+if (existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+  // SPA fallback — any path that isn't an /api route returns index.html
+  app.use((req: Request, res: Response) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(join(publicDir, 'index.html'));
+    }
+  });
+}
+
 app.listen(port, () => {
-  console.log(`Aphelion API running at http://localhost:${port}`);
+  console.log(`Aphelion running at http://localhost:${port}`);
 });
