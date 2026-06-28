@@ -10,7 +10,7 @@
     (cdkDropListDropped)="onDrop($event)"
   >
     @for (project of column().projects; track project.id) {
-      <app-project-card [project]="project" />
+      <app-project-card [project]="project" (editRequested)="projectEditRequested.emit($event)" />
     }
   </div>
 </div>

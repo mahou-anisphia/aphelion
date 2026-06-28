@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { CdkDropList, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { KanbanColumn } from '../../models/project.model';
+import { KanbanColumn, Project } from '../../models/project.model';
 import { ProjectCard } from '../project-card/project-card';
 
 @Component({
@@ -13,6 +13,7 @@ export class KanbanColumnComponent {
   column = input.required<KanbanColumn>();
   projectMoved = output<{ projectId: string; fromColumnId: string; toColumnId: string }>();
   projectReordered = output<{ columnId: string; projectId: string; newIndex: number }>();
+  projectEditRequested = output<Project>();
 
   onDrop(event: CdkDragDrop<KanbanColumn>) {
     const projectId = event.item.data;

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, viewChild, effect, isDevMode } from '@angular/core';
+import { Component, inject, signal, computed, viewChild, isDevMode } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -8,10 +8,10 @@ import { KanbanBoard } from '../../components/kanban-board/kanban-board';
 import {
   AddProjectModal,
   NewProjectData,
+  UpdatedProjectData,
 } from '../../components/add-project-modal/add-project-modal';
-import { BoardData } from '../../models/project.model';
-
-const STORAGE_KEY = 'stellar-guide-project-board-data';
+import { BoardData, Project } from '../../models/project.model';
+import { BoardService } from '../../services/board.service';
 
 @Component({
   selector: 'app-board',
@@ -20,7 +20,7 @@ const STORAGE_KEY = 'stellar-guide-project-board-data';
   styleUrl: './board.scss',
 })
 export class Board {
-  protected boardData = signal<BoardData>(this.loadBoardData());
+  protected boardData = signal<BoardData>(this.emptyBoardData());
   protected isEmpty = computed(() =>
     this.boardData().columns.every((col) => col.projects.length === 0),
   );
@@ -28,30 +28,13 @@ export class Board {
   private addProjectModal = viewChild.required(AddProjectModal);
   private message = inject(NzMessageService);
   private modal = inject(NzModalService);
+  private boardService = inject(BoardService);
 
   constructor() {
-    // Auto-save to local storage whenever board data changes
-    effect(() => {
-      const data = this.boardData();
-      this.saveBoardData(data);
-    });
+    this.loadBoard();
   }
 
-  private loadBoardData(): BoardData {
-    const storedData = localStorage.getItem(STORAGE_KEY);
-
-    if (storedData) {
-      return JSON.parse(storedData);
-    }
-
-    return this.getInitialBoardData();
-  }
-
-  private saveBoardData(data: BoardData): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
-
-  private getInitialBoardData(): BoardData {
+  private emptyBoardData(): BoardData {
     return {
       columns: [
         { id: 'active', title: 'Active', status: 'active', projects: [] },
@@ -62,18 +45,29 @@ export class Board {
     };
   }
 
-  nukeLocalStorage() {
+  private loadBoard() {
+    this.boardService.loadBoard().subscribe({
+      next: (data) => this.boardData.set(data),
+      error: () => this.message.error('Failed to load board'),
+    });
+  }
+
+  clearBoard() {
     this.modal.confirm({
       nzTitle: 'Clear all board data?',
-      nzContent: 'This will remove all projects and reset the board.',
+      nzContent: 'This will permanently delete all projects from the database.',
       nzOkText: 'Clear',
       nzOkDanger: true,
       nzCancelText: 'Cancel',
       nzClassName: 'dark-confirm-modal',
       nzOnOk: () => {
-        localStorage.removeItem(STORAGE_KEY);
-        this.boardData.set(this.getInitialBoardData());
-        this.message.success('Local storage cleared');
+        this.boardService.clearBoard().subscribe({
+          next: () => {
+            this.boardData.set(this.emptyBoardData());
+            this.message.success('Board cleared');
+          },
+          error: () => this.message.error('Failed to clear board'),
+        });
       },
     });
   }
@@ -83,40 +77,66 @@ export class Board {
   }
 
   onProjectAdded(newProjectData: NewProjectData) {
-    this.boardData.update((data) => {
-      const targetColumn = data.columns.find((col) => col.status === newProjectData.status);
-      if (!targetColumn) return data;
-
-      const columnTitle = targetColumn.title;
-      const currentDate = new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-
-      const newProject = {
-        id: crypto.randomUUID(),
-        title: newProjectData.title,
-        description: newProjectData.description,
-        status: newProjectData.status,
-        date: currentDate,
-        dateLabel: columnTitle,
-        position: 0,
-      };
-
-      // Update positions of existing projects
-      targetColumn.projects.forEach((project) => {
-        project.position += 1;
-      });
-
-      targetColumn.projects.unshift(newProject);
-      return { ...data };
+    this.boardService.createProject(newProjectData).subscribe({
+      next: (project) => {
+        this.boardData.update((data) => {
+          const col = data.columns.find((c) => c.status === project.status);
+          if (!col) return data;
+          col.projects.unshift(project);
+          col.projects.forEach((p, i) => (p.position = i));
+          return { ...data };
+        });
+        this.message.success(`Project "${project.title}" created`);
+      },
+      error: () => this.message.error('Failed to create project'),
     });
+  }
 
-    this.message.success(`Project "${newProjectData.title}" created`);
+  onProjectUpdated(data: UpdatedProjectData) {
+    const { id, ...fields } = data;
+    this.boardService.patchProject(id, fields).subscribe({
+      next: () => this.loadBoard(),
+      error: () => this.message.error('Failed to update project'),
+    });
+  }
+
+  onProjectDeleteRequested(id: string) {
+    this.modal.confirm({
+      nzTitle: 'Delete this project?',
+      nzContent: 'This action cannot be undone.',
+      nzOkText: 'Delete',
+      nzOkDanger: true,
+      nzCancelText: 'Cancel',
+      nzClassName: 'dark-confirm-modal',
+      nzOnOk: () => {
+        this.addProjectModal().close();
+        this.boardService.deleteProject(id).subscribe({
+          next: () => {
+            this.boardData.update((data) => {
+              for (const col of data.columns) {
+                const idx = col.projects.findIndex((p) => p.id === id);
+                if (idx !== -1) {
+                  col.projects.splice(idx, 1);
+                  col.projects.forEach((p, i) => (p.position = i));
+                  break;
+                }
+              }
+              return { ...data };
+            });
+            this.message.success('Project deleted');
+          },
+          error: () => this.message.error('Failed to delete project'),
+        });
+      },
+    });
+  }
+
+  onProjectEditRequested(project: Project) {
+    this.addProjectModal().openEdit(project);
   }
 
   onProjectReordered(event: { columnId: string; projectId: string; newIndex: number }) {
+    // Optimistic update — the server re-normalises positions in its transaction
     this.boardData.update((data) => {
       const column = data.columns.find((col) => col.id === event.columnId);
       if (!column) return data;
@@ -126,46 +146,42 @@ export class Board {
 
       const [project] = column.projects.splice(currentIndex, 1);
       column.projects.splice(event.newIndex, 0, project);
-
-      // Update positions for all projects in the column
-      column.projects.forEach((proj, index) => {
-        proj.position = index;
-      });
+      column.projects.forEach((p, i) => (p.position = i));
 
       return { ...data };
+    });
+
+    this.boardService.patchProject(event.projectId, { position: event.newIndex }).subscribe({
+      error: () => this.loadBoard(),
     });
   }
 
   onProjectMoved(event: { projectId: string; fromColumnId: string; toColumnId: string }) {
+    const toColumn = this.boardData().columns.find((col) => col.id === event.toColumnId);
+    if (!toColumn) return;
+    const newStatus = toColumn.status;
+
+    // Optimistic update
     this.boardData.update((data) => {
       const fromColumn = data.columns.find((col) => col.id === event.fromColumnId);
-      const toColumn = data.columns.find((col) => col.id === event.toColumnId);
-
-      if (!fromColumn || !toColumn) return data;
+      const destColumn = data.columns.find((col) => col.id === event.toColumnId);
+      if (!fromColumn || !destColumn) return data;
 
       const projectIndex = fromColumn.projects.findIndex((p) => p.id === event.projectId);
       if (projectIndex === -1) return data;
 
       const [project] = fromColumn.projects.splice(projectIndex, 1);
-      project.status = toColumn.status;
+      project.status = destColumn.status;
+      project.position = destColumn.projects.length;
+      destColumn.projects.push(project);
 
-      const currentDate = new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      });
-      project.date = currentDate;
-      project.dateLabel = toColumn.title;
-      project.position = toColumn.projects.length;
-
-      toColumn.projects.push(project);
-
-      // Update positions in the source column after removal
-      fromColumn.projects.forEach((proj, index) => {
-        proj.position = index;
-      });
+      fromColumn.projects.forEach((p, i) => (p.position = i));
 
       return { ...data };
+    });
+
+    this.boardService.patchProject(event.projectId, { status: newStatus }).subscribe({
+      error: () => this.loadBoard(),
     });
   }
 }

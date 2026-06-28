@@ -18,13 +18,19 @@
       [boardData]="boardData()"
       (projectMoved)="onProjectMoved($event)"
       (projectReordered)="onProjectReordered($event)"
+      (projectEditRequested)="onProjectEditRequested($event)"
     />
   }
 
-  <app-add-project-modal [columns]="boardData().columns" (projectAdded)="onProjectAdded($event)" />
+  <app-add-project-modal
+    [columns]="boardData().columns"
+    (projectAdded)="onProjectAdded($event)"
+    (projectUpdated)="onProjectUpdated($event)"
+    (projectDeleteRequested)="onProjectDeleteRequested($event)"
+  />
 
   @if (isDev) {
-    <button class="dev-nuke-btn" (click)="nukeLocalStorage()" title="Clear local storage">
+    <button class="dev-nuke-btn" (click)="clearBoard()" title="Clear all board data">
       <span nz-icon nzType="delete" nzTheme="outline"></span>
     </button>
   }

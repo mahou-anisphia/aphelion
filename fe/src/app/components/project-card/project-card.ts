@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -12,4 +12,5 @@ import { Project } from '../../models/project.model';
 })
 export class ProjectCard {
   project = input.required<Project>();
+  editRequested = output<Project>();
 }

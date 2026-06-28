@@ -5,6 +5,7 @@
         [column]="column"
         (projectMoved)="projectMoved.emit($event)"
         (projectReordered)="projectReordered.emit($event)"
+        (projectEditRequested)="projectEditRequested.emit($event)"
       />
     }
   </div>
