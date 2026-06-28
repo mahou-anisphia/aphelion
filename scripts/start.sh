@@ -33,6 +33,20 @@ EOF
   exit 0
 }
 
+# Returns 0 (true) if the given host port is already bound
+port_in_use() {
+  local port=$1
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -i :"$port" -sTCP:LISTEN -t >/dev/null 2>&1
+  elif command -v ss >/dev/null 2>&1; then
+    ss -tlnH "sport = :$port" 2>/dev/null | grep -q .
+  elif command -v nc >/dev/null 2>&1; then
+    nc -z localhost "$port" >/dev/null 2>&1
+  else
+    return 1  # can't detect — let Docker fail if needed
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --be-port)  BE_PORT="$2";   shift 2 ;;
@@ -65,14 +79,28 @@ if [[ ! -d "$ROOT_DIR/be/drizzle" ]] || [[ -z "$(ls -A "$ROOT_DIR/be/drizzle" 2>
   exit 1
 fi
 
-# ── 3. Build ───────────────────────────────────────────────────────────────────
+# ── 3. Remove stale container (frees its port before we check availability) ────
+if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+  echo "→ Removing existing '$CONTAINER_NAME' container ..."
+  docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+  docker rm   "$CONTAINER_NAME" >/dev/null 2>&1 || true
+fi
+
+# ── 4. Port availability check ─────────────────────────────────────────────────
+if port_in_use "$FE_PORT"; then
+  echo "Error: host port $FE_PORT is already in use."
+  echo "  Free the port or choose another with --fe-port <n>."
+  exit 1
+fi
+
+# ── 5. Build ───────────────────────────────────────────────────────────────────
 echo "→ Building Docker image '$IMAGE_NAME' ..."
 docker build \
   -f "$SCRIPT_DIR/Dockerfile" \
   -t "$IMAGE_NAME" \
   "$ROOT_DIR"
 
-# ── 4. Run DB migrations ───────────────────────────────────────────────────────
+# ── 6. Run DB migrations ───────────────────────────────────────────────────────
 echo "→ Running DB migrations ..."
 docker run --rm \
   --env-file "$ENV_FILE" \
@@ -80,14 +108,7 @@ docker run --rm \
   "$IMAGE_NAME" \
   node_modules/.bin/tsx src/migrate.ts
 
-# ── 5. Remove stale container if exists ────────────────────────────────────────
-if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-  echo "→ Removing existing '$CONTAINER_NAME' container ..."
-  docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
-  docker rm   "$CONTAINER_NAME" >/dev/null 2>&1 || true
-fi
-
-# ── 6. Start container ─────────────────────────────────────────────────────────
+# ── 7. Start container ─────────────────────────────────────────────────────────
 echo "→ Starting '$CONTAINER_NAME' (host:$FE_PORT → container:$BE_PORT) ..."
 docker run -d \
   --name "$CONTAINER_NAME" \
